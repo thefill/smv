@@ -1,4 +1,4 @@
 // Export classes and interfaces just in case
-export * from './interfaces';
+export * from './enums';
 export * from './classes';
-export * from './services';
+export * from './interface';
