@@ -174,7 +174,7 @@ export class SMV extends Semver implements ISMV {
             let packageDigest = digest[packageKey];
 
             // dont proceed if only one source has package - no chance of conflict
-            if (Object.keys(packageDigest.sources).length) {
+            if (Object.keys(packageDigest.sources).length === 1) {
                 return;
             }
 
@@ -189,7 +189,7 @@ export class SMV extends Semver implements ISMV {
             packageDigest = Object.assign(packageDigest, conflictDigest);
 
             // get resolution
-            const resolutionDigest = this.getResolutionDigest(packageDigest);
+            const resolutionDigest = this.getResolutionDigest(packageDigest, forceRecommended);
             packageDigest = Object.assign(packageDigest, resolutionDigest);
 
             digest[packageKey] = packageDigest;
@@ -240,7 +240,7 @@ export class SMV extends Semver implements ISMV {
         const comparator = type === 'max' ? this.semver.gt : this.semver.lt;
 
         Object.keys(digest.sources).forEach((sourceKey) => {
-            const sourceDigest: IVersionDefinition = digest[sourceKey];
+            const sourceDigest: IVersionDefinition = digest.sources[sourceKey];
             let versionA = sourceDigest.version;
             let versionB = extreme;
 
@@ -409,10 +409,10 @@ export class SMV extends Semver implements ISMV {
     /**
      * Get dependency stats digest
      * @param {ISourceDependencyDigest} digest
-     * @returns {IDependencyStatsDigest}
+     * @param {boolean} forceRecommended
      * @returns {IDependencyStatsDigest}
      */
-    protected getResolutionDigest(digest: IDependencyDigest): IDependencyResolutionDigest {
+    protected getResolutionDigest(digest: IDependencyDigest, forceRecommended: boolean): IDependencyResolutionDigest {
         // TODO: implement
 
         // if conflict and if forceRecommended get highest version and remove conflict
@@ -436,7 +436,7 @@ export class SMV extends Semver implements ISMV {
     protected getVersionType(version: IVersion): VersionType {
         // use semver validator that returns null if invalid
         // (accepts only versions if format: 1.2.3 or v1.2.3)
-        return !!this.semver.valid(version) ? VersionType.RANGE : VersionType.VERSION;
+        return !!this.semver.valid(version) ? VersionType.VERSION : VersionType.RANGE;
     }
 
 }
