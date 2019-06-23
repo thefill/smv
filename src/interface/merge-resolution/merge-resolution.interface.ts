@@ -1,4 +1,4 @@
-import {ISourceDependencyDigest} from '../digest';
+import {IDependencyConflictDigest, ISourceDependencyDigest} from '../digest';
 import {IVersion} from '../version';
 
 /**
@@ -6,13 +6,17 @@ import {IVersion} from '../version';
  */
 export interface IMergeResolution {
     /**
+     * Does any package has conflict
+     */
+    hasConflicts: boolean;
+    /**
      * Final list of non-conflicting pairs package-version
      */
     result: { [packageName: string]: IVersion };
     /**
      * List of conflicts that have to be resolved
      */
-    conflicts?: ISourceDependencyDigest;
+    conflicts?: { [packageName: string]: IDependencyConflictDigest };
     /**
      * List of resolved results - kept for informative purposes
      */

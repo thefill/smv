@@ -75,6 +75,7 @@ export class SMV extends Semver implements ISMV {
      */
     protected toMergeResolution(digest: ISourceDependencyDigest): IMergeResolution {
         const resolution: IMergeResolution = {
+            hasConflicts: false,
             result: {},
             resolved: {}
         };
@@ -89,11 +90,16 @@ export class SMV extends Semver implements ISMV {
                 return resolution.result[key] = digestEntry.recommended;
             }
 
+            resolution.hasConflicts = true;
+
             if (!resolution.conflicts) {
                 resolution.conflicts = {};
             }
 
-            (resolution.conflicts as object)[key] = digestEntry;
+            resolution.conflicts[key] = {
+                hasConflict: true,
+                conflicts: digestEntry.conflicts
+            };
         });
 
         return resolution;

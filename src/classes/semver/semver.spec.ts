@@ -1,9 +1,9 @@
 import {Semver} from './semver.class';
 
-describe('', () => {
+describe.skip('', () => {
     const semver = new Semver();
 
-    it.only('', () => {
+    it('', () => {
         // TODO: mock Semver with class that has spy as this.semver
         // TODO: check if all passed
     });

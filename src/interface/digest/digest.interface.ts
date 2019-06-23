@@ -30,7 +30,7 @@ export interface ISourceDependencyDigest {
     /**
      * List of packages and its digest objects
      */
-    [packageName: string]: IDependencyConflictDigest & IDependencyStatsDigest & IDependencyResolutionDigest;
+    [packageName: string]: IDependencyDigest;
 }
 
 /**
@@ -75,7 +75,7 @@ export interface IDependencyConflictDigest {
     /**
      * List of conflict definitions
      */
-    conflicts: IDependencyConflictDefinition[];
+    conflicts?: IDependencyConflictDefinition[];
 }
 
 export interface IVersionDefinition {
