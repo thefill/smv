@@ -34,14 +34,16 @@ enum TestVersionPrefix {
 interface ITestCase {
     versions: Array<[TestVersionPrefix, TestVersion]>;
     result: TestVersion | void;
-    conflictType: ConflictType | void;
-    conflictSourceIndexes: number[];
+    recommended: TestVersion;
+    recommendedSourceIndexes: number[];
     highest: TestVersion;
     highestSourceIndexes: number[];
     lowest: TestVersion;
     lowestSourceIndexes: number[];
-    recommended: TestVersion;
-    recommendedSourceIndexes: number[];
+    conflicts: Array<{
+        conflictType: ConflictType | void;
+        conflictSourceIndexes: number[];
+    }>;
 }
 
 describe('SMV class', () => {
@@ -54,10 +56,52 @@ describe('SMV class', () => {
                 versions: [
                     [TestVersionPrefix.VERSION, TestVersion.LOW]
                 ],
-                result: TestVersion.LOW, conflictType: undefined, conflictSourceIndexes: [],
+                result: TestVersion.LOW,
+                recommended: TestVersion.LOW, recommendedSourceIndexes: [0],
                 highest: TestVersion.LOW, highestSourceIndexes: [0],
                 lowest: TestVersion.LOW, lowestSourceIndexes: [0],
-                recommended: TestVersion.LOW, recommendedSourceIndexes: [0]
+                conflicts: []
+            },
+            {
+                versions: [
+                    [TestVersionPrefix.VERSION, TestVersion.LOW],
+                    [TestVersionPrefix.VERSION, TestVersion.HIGH]
+                ],
+                result: undefined,
+                recommended: TestVersion.HIGH, recommendedSourceIndexes: [1],
+                highest: TestVersion.HIGH, highestSourceIndexes: [1],
+                lowest: TestVersion.LOW, lowestSourceIndexes: [0],
+                conflicts: [
+                    {
+                        conflictType: ConflictType.VERSION_MISMATCH,
+                        conflictSourceIndexes: [0, 1]
+                    }
+                ]
+            },
+            {
+                versions: [
+                    [TestVersionPrefix.VERSION, TestVersion.LOW],
+                    [TestVersionPrefix.VERSION, TestVersion.MEDIUM],
+                    [TestVersionPrefix.VERSION, TestVersion.HIGH]
+                ],
+                result: undefined,
+                recommended: TestVersion.HIGH, recommendedSourceIndexes: [2],
+                highest: TestVersion.HIGH, highestSourceIndexes: [2],
+                lowest: TestVersion.LOW, lowestSourceIndexes: [0],
+                conflicts: [
+                    {
+                        conflictType: ConflictType.VERSION_MISMATCH,
+                        conflictSourceIndexes: [0, 1]
+                    },
+                    {
+                        conflictType: ConflictType.VERSION_MISMATCH,
+                        conflictSourceIndexes: [0, 2]
+                    },
+                    {
+                        conflictType: ConflictType.VERSION_MISMATCH,
+                        conflictSourceIndexes: [1, 2]
+                    }
+                ]
             }
         ];
 
@@ -68,6 +112,7 @@ describe('SMV class', () => {
                         it(`${forceRecommended ? 'with' : 'without'} forcing recommended versions`, () => {
                             const dependencies = generateDependencyLists(caseDefinition);
                             const resolution = smv.merge(dependencies, forceRecommended) as IMergeResolution;
+
                             assertResolution(resolution, forceRecommended, caseDefinition);
                         });
                     });
@@ -194,32 +239,46 @@ function assertResolution(
  * @param {ITestCase} definition
  * @returns {boolean}
  */
-function hasExpectedConflicts(conflict: IDependencyConflictDigest, definition: ITestCase): boolean {
+function assertExpectedConflicts(conflict: IDependencyConflictDigest, definition: ITestCase): void {
     if (!conflict.conflicts) {
-        return false;
+        return;
     }
 
-    // if any of conflict definitions matches expected conflict definition
-    return conflict.conflicts.some((conflictDetails) => {
-        // if types dont match
-        if (conflictDetails.type !== definition.conflictType) {
-            // Bailout - invalid state
-            return false;
-        }
+    let received = conflict.conflicts.map((conflictDetails) => {
+        const conflictSourceIndexes = Object.keys(conflictDetails.conflictSources as object).sort();
+        const conflictType = conflictDetails.type;
 
-        // if no conflict sources
-        if (!conflictDetails.conflictSources) {
-            // Bailout - invalid state
-            return false;
-        }
-
-        const expectedConflictSourceNames = definition.conflictSourceIndexes.map((index) => {
-            return `source${index}`;
-        });
-
-        // if conflict sources match e.g. same values on both arrays
-        return sameArrays(expectedConflictSourceNames, Object.keys(conflictDetails.conflictSources));
+        return {conflictType, conflictSourceIndexes};
     });
+
+    // sort by all properties
+    received = received.sort((A, B) => {
+        if (JSON.stringify(A) > JSON.stringify(B)) {
+            return 1;
+        }
+        return JSON.stringify(A) < JSON.stringify(B) ? -1 : 0;
+    });
+
+    let expected = definition.conflicts.map((conflictDefinition) => {
+        const conflictSourceIndexes = conflictDefinition.conflictSourceIndexes
+            .sort()
+            .map((e) => {
+                return `source${e}`;
+            });
+        const conflictType = conflictDefinition.conflictType;
+
+        return {conflictType, conflictSourceIndexes};
+    });
+
+    // sort by all properties
+    expected = expected.sort((A, B) => {
+        if (JSON.stringify(A) > JSON.stringify(B)) {
+            return 1;
+        }
+        return JSON.stringify(A) < JSON.stringify(B) ? -1 : 0;
+    });
+
+    expect(received).toEqual(expected);
 }
 
 /**
@@ -234,11 +293,13 @@ function assertGlobalExpectations(
     forceRecommended: boolean
 ) {
 
-    const hasConflicts = definitions.every((definition) => {
-        return !definition.conflictType;
+    const hasConflicts = definitions.some((definition) => {
+        return definition.conflicts.some((conflictDefinition) => {
+            return !!conflictDefinition.conflictType;
+        });
     });
 
-    const hasResults = definitions.every((definition) => {
+    const hasResults = definitions.some((definition) => {
         return !!definition.result;
     });
 
@@ -269,7 +330,7 @@ function assertGlobalExpectations(
             }
         }
     } else {
-        expect(resolution.resolved).toBeFalsy();
+        expect(resolution.resolved).toEqual({});
     }
 }
 
@@ -286,7 +347,7 @@ function assertConflictExpectations(
 ) {
 
     // asset conflict data
-    if (definition.conflictType) {
+    if (definition.conflicts && definition.conflicts.length) {
         expect(resolution.hasConflicts).toBeTruthy();
 
         if (!resolution.conflicts) {
@@ -307,13 +368,14 @@ function assertConflictExpectations(
         }
 
         expect(conflict.conflicts.length).toBeGreaterThan(0);
+        expect(conflict.conflicts.length).toEqual(definition.conflicts.length);
 
-        const conflictMatch = hasExpectedConflicts(conflict, definition);
-        expect(conflictMatch).toBeTruthy();
+        // TODO: make more precise
+        assertExpectedConflicts(conflict, definition);
 
     } else {
-        expect(resolution.conflicts).toBeTruthy();
-        expect(resolution.hasConflicts).toBeTruthy();
+        expect(resolution.conflicts).toBeFalsy();
+        expect(resolution.hasConflicts).toBeFalsy();
     }
 }
 
@@ -363,7 +425,7 @@ function assertResolvedExpectations(
 
         expect(resolvedPackage.sources).toBeTruthy();
 
-        const source = resolvedPackage.sources[packageName];
+        const source = resolvedPackage.sources[sourceName];
         expect(source).toBeTruthy();
 
         // translate version prefix to VersionType
@@ -384,8 +446,11 @@ function assertResolvedExpectations(
  * @param {ITestCase} definition
  */
 function assertStatsExpectations(resolvedPackage: IDependencyDigest, definition: ITestCase) {
-    expect(resolvedPackage.highest).toEqual(definition.highest);
-    expect(resolvedPackage.lowest).toEqual(definition.lowest);
+    expect(resolvedPackage.highest.version).toEqual(definition.highest);
+    expect(resolvedPackage.highest.type).toEqual(VersionType.VERSION);
+
+    expect(resolvedPackage.lowest.version).toEqual(definition.lowest);
+    expect(resolvedPackage.lowest.type).toEqual(VersionType.VERSION);
 
     const highestSourceNames = definition.highestSourceIndexes.map((index) => {
         return `source${index}`;

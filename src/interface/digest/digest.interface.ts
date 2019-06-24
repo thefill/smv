@@ -53,7 +53,7 @@ export interface IDependencyStatsDigest {
     /**
      * Sources that provided highest version
      */
-    highestSources: string | string[];
+    highestSources: string[];
     /**
      * Lowest version available
      */
@@ -61,7 +61,7 @@ export interface IDependencyStatsDigest {
     /**
      * Sources that provided lowest version
      */
-    lowestSources: string | string[];
+    lowestSources: string[];
 }
 
 /**
@@ -126,5 +126,5 @@ export interface IDependencyResolutionDigest {
     /**
      * Sources that provided recommended version
      */
-    recommendedSources: string | string[];
+    recommendedSources: string[];
 }

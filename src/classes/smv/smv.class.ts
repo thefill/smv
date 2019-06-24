@@ -1,6 +1,4 @@
-import {ConflictDescription} from '../../enums/conflict-description';
-import {ConflictType} from '../../enums/conflict-type';
-import {VersionType} from '../../enums/version-type';
+import {ConflictDescription, ConflictType, VersionType} from '../../enums';
 import {
     IDependencyConflictDefinition,
     IDependencyConflictDigest,
@@ -11,7 +9,6 @@ import {
     IMergeResolution,
     ISMV,
     ISourceDependencyDigest,
-    ISourceDigest,
     IVersion,
     IVersionDefinition
 } from '../../interface';
@@ -143,17 +140,17 @@ export class SMV extends Semver implements ISMV {
                             }
                         },
                         recommended: version,
-                        recommendedSources: sourceKey,
+                        recommendedSources: [sourceKey],
                         highest: {
                             version: version,
                             type: this.getVersionType(version)
                         },
-                        highestSources: sourceKey,
+                        highestSources: [sourceKey],
                         lowest: {
                             version: version,
                             type: this.getVersionType(version)
                         },
-                        lowestSources: sourceKey
+                        lowestSources: [sourceKey]
                     };
                 } else {
                     // if package occurs for the nth time
@@ -184,8 +181,6 @@ export class SMV extends Semver implements ISMV {
                 return;
             }
 
-            const sourceDigest: ISourceDigest = packageDigest.sources;
-
             // get stats
             const statsDigest = this.getStatsDigest(packageDigest);
             packageDigest = Object.assign(packageDigest, statsDigest);
@@ -195,7 +190,7 @@ export class SMV extends Semver implements ISMV {
             packageDigest = Object.assign(packageDigest, conflictDigest);
 
             // get resolution
-            const resolutionDigest = this.getResolutionDigest(packageDigest, forceRecommended);
+            const resolutionDigest = this.getRecommendedResolutionDigest(packageDigest, forceRecommended);
             packageDigest = Object.assign(packageDigest, resolutionDigest);
 
             digest[packageKey] = packageDigest;
@@ -299,7 +294,6 @@ export class SMV extends Semver implements ISMV {
      * @returns {IDependencyStatsDigest}
      */
     protected getConflictDigest(digest: IDependencyDigest): IDependencyConflictDigest {
-        let hasConflict = false;
         const conflicts: IDependencyConflictDefinition[] = [];
 
         // for each combination check conflicts
@@ -336,7 +330,7 @@ export class SMV extends Semver implements ISMV {
                             }
                         });
                     }
-                    return;
+                    continue;
                 }
 
                 // if only ranges check if there is intersection
@@ -357,7 +351,7 @@ export class SMV extends Semver implements ISMV {
                             }
                         });
                     }
-                    return;
+                    continue;
                 }
 
                 // if version and range check if version in range
@@ -406,32 +400,44 @@ export class SMV extends Semver implements ISMV {
             }
             x++;
         });
-
-        hasConflict = !!conflicts.length;
+        const hasConflict = !!conflicts.length;
 
         return {hasConflict, conflicts};
     }
 
     /**
-     * Get dependency stats digest
+     * Get dependency resolution digest, respect forced recommendation
      * @param {ISourceDependencyDigest} digest
      * @param {boolean} forceRecommended
      * @returns {IDependencyStatsDigest}
      */
-    protected getResolutionDigest(digest: IDependencyDigest, forceRecommended: boolean): IDependencyResolutionDigest {
-        // TODO: implement
+    protected getRecommendedResolutionDigest(
+        digest: IDependencyDigest,
+        forceRecommended: boolean
+    ): IDependencyResolutionDigest & IDependencyConflictDigest {
 
-        // if conflict and if forceRecommended get highest version and remove conflict
-        // if conflict and no forceRecommended leave conflicts
-        // return {
-        //     // sources: ISourceDigest,
-        //     // recommended: IVersion,
-        //     // recommendedSources: string | string[]
-        // };
+        // versions per sources already computed
+        const sources = digest.sources;
+        // for recommended always take highest version
+        const recommended = digest.highest.version;
+        const recommendedSources = digest.highestSources;
+
+        let hasConflict = digest.hasConflict;
+        let conflicts = digest.conflicts;
+
+        // if conflict and we force recommended
+        if (hasConflict && forceRecommended) {
+            // discard conflicts
+            hasConflict = false;
+            conflicts = undefined;
+        }
+
         return {
-            sources: digest.sources,
-            recommended: 'IVersion',
-            recommendedSources: []
+            sources,
+            recommended,
+            recommendedSources,
+            hasConflict,
+            conflicts
         };
     }
 
