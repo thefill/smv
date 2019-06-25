@@ -82,12 +82,15 @@ export class SMV extends Semver implements ISMV {
         Object.keys(digest).forEach((key) => {
             const digestEntry = digest[key];
 
+            (resolution.resolved as ISourceDependencyDigest)[key] = digestEntry;
+
             if (!digestEntry.hasConflict) {
-                (resolution.resolved as object)[key] = digestEntry;
                 return resolution.result[key] = digestEntry.recommended;
             }
 
             resolution.hasConflicts = true;
+            (resolution.resolved as ISourceDependencyDigest)[key].hasConflict = true;
+            (resolution.resolved as ISourceDependencyDigest)[key].conflicts = digestEntry.conflicts;
 
             if (!resolution.conflicts) {
                 resolution.conflicts = {};

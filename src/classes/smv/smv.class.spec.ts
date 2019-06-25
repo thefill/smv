@@ -5,6 +5,7 @@ import {
     IMergeInput,
     IMergeResolution,
     SMV,
+    Utils,
     VersionType
 } from '../../';
 
@@ -51,6 +52,7 @@ describe('SMV class', () => {
 
     describe('should merge dependency lists', () => {
 
+        // TODO: add more test cases
         const cases: ITestCase[] = [
             {
                 versions: [
@@ -120,13 +122,14 @@ describe('SMV class', () => {
             });
         });
 
-        describe.skip('should resolve dependency lists with multiple packages', () => {
+        // TODO: enable
+        describe('should resolve dependency lists with multiple packages', () => {
 
             // Generate increased number of packages in merged dependency lists
             cases.reduce((cummulativeCases: ITestCase[], currentCase) => {
                 cummulativeCases.push(currentCase);
 
-                it(`with ${cummulativeCases.length} packages`, () => {
+                describe(`with ${cummulativeCases.length} packages`, () => {
 
                     [true, false].forEach((forceRecommended) => {
                         it(`${forceRecommended ? 'with' : 'without'} forcing recommended versions`, () => {
@@ -141,6 +144,7 @@ describe('SMV class', () => {
             }, []);
         });
 
+        // TODO: enable
         it.skip('should return no results for empty dependency lists', () => {
             cases.forEach((caseDefinition) => {
                 // TODO: implement
@@ -149,6 +153,7 @@ describe('SMV class', () => {
             });
         });
 
+        // TODO: enable
         it.skip('should throw error for invalid dependencies', () => {
             cases.forEach((caseDefinition) => {
                 // TODO: implement
@@ -320,17 +325,22 @@ function assertGlobalExpectations(
 
     // if has any results
     if (hasResults) {
+        expect(resolution.result).toBeTruthy();
         expect(resolution.resolved).toBeTruthy();
 
         if (resolution.resolved) {
+            // Check if any has conflict
+            const anyHasConflict = Object.keys(resolution.resolved).some((resolvedKey) => {
+                return !!resolution.resolved && resolution.resolved[resolvedKey].hasConflict;
+            });
             if (hasConflicts) {
-                expect(resolution.resolved.hasConflicts).toBeTruthy();
+                expect(anyHasConflict).toBeTruthy();
             } else {
-                expect(resolution.resolved.hasConflicts).toBeFalsy();
+                expect(anyHasConflict).toBeFalsy();
             }
         }
     } else {
-        expect(resolution.resolved).toEqual({});
+        expect(resolution.result).toEqual({});
     }
 }
 
@@ -346,7 +356,7 @@ function assertConflictExpectations(
     packageName: string
 ) {
 
-    // asset conflict data
+    // asses conflict data
     if (definition.conflicts && definition.conflicts.length) {
         expect(resolution.hasConflicts).toBeTruthy();
 
@@ -370,12 +380,14 @@ function assertConflictExpectations(
         expect(conflict.conflicts.length).toBeGreaterThan(0);
         expect(conflict.conflicts.length).toEqual(definition.conflicts.length);
 
-        // TODO: make more precise
         assertExpectedConflicts(conflict, definition);
 
     } else {
-        expect(resolution.conflicts).toBeFalsy();
-        expect(resolution.hasConflicts).toBeFalsy();
+        if (resolution.conflicts) {
+            expect(resolution.conflicts[packageName]).toBeFalsy();
+        } else {
+            expect(resolution.hasConflicts).toBeFalsy();
+        }
     }
 }
 
@@ -478,18 +490,5 @@ function assertRecommendationExpectations(resolvedPackage: IDependencyDigest, de
         return `source${index}`;
     });
 
-    return sameArrays(expectedRecommendedSourceNames, Object.keys(resolvedPackage.recommendedSources));
-}
-
-/**
- * Checks if 2 arrays with primitive values are equal
- * @param {any[]} arrayA
- * @param {any[]} arrayB
- * @returns {boolean}
- */
-function sameArrays(arrayA: any[], arrayB: any[]): boolean {
-    const unique = new Set(arrayA.concat(arrayB));
-
-    // if match e.g. same values on both arrays
-    return arrayA.length === unique.size;
+    return Utils.sameArrays(expectedRecommendedSourceNames, Object.keys(resolvedPackage.recommendedSources));
 }

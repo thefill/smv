@@ -10,4 +10,17 @@ export class Utils {
             return allValues.indexOf(value) === index;
         });
     }
+
+    /**
+     * Checks if 2 arrays with primitive values are equal
+     * @param {any[]} arrayA
+     * @param {any[]} arrayB
+     * @returns {boolean}
+     */
+    public static sameArrays(arrayA: any[], arrayB: any[]): boolean {
+        const unique = new Set(arrayA.concat(arrayB));
+
+        // if match e.g. same values on both arrays
+        return arrayA.length === unique.size;
+    }
 }
