@@ -6,7 +6,7 @@ import {
     IDependencyResolutionDigest,
     IDependencyStatsDigest,
     IMergeInput,
-    IMergeResolution,
+    IMergeResolution, ISemVerDigest,
     ISMV,
     ISourceDependencyDigest,
     IVersion,
@@ -237,56 +237,63 @@ export class SMV extends Semver implements ISMV {
         digest: IDependencyDigest,
         type: 'min' | 'max'
     ): { version: IVersion; type: VersionType; sourceKeys: string[]; } {
-        let extreme: string = '';
-        let extremeType: VersionType = VersionType.VERSION;
-        let extremeSourceKeys: string[] = [];
+        // Extremum can be a range or a version
+        let extremum: string = '';
+        let extremumType: VersionType = VersionType.VERSION;
+        let extremumSourceKeys: string[] = [];
 
-        const comparator = type === 'max' ? this.semver.gt : this.semver.lt;
+        Object.keys(digest.sources).forEach((contenderSourceKey) => {
+            const contenderDigest: IVersionDefinition = digest.sources[contenderSourceKey];
+            let contender = contenderDigest.version;
+            const contenderType = contenderDigest.type;
 
-        Object.keys(digest.sources).forEach((sourceKey) => {
-            const sourceDigest: IVersionDefinition = digest.sources[sourceKey];
-            let versionA = sourceDigest.version;
-            let versionB = extreme;
-
-            // if no max set it
-            if (!extreme) {
-                extreme = sourceDigest.version;
-                extremeType = VersionType.VERSION;
-                extremeSourceKeys = [sourceKey];
+            // if no max set it to current element
+            if (!extremum) {
+                extremum = contenderDigest.version;
+                extremumType = contenderDigest.type;
+                extremumSourceKeys = [contenderSourceKey];
                 return;
             }
 
             // if same version as max
-            if (versionA === versionB) {
-                extremeSourceKeys.push(sourceKey);
+            if (contender === extremum) {
+                extremumSourceKeys.push(contenderSourceKey);
                 return;
             }
 
-            // if both same are not of type version
-            if (!(extremeType === VersionType.VERSION && sourceDigest.type === VersionType.VERSION)) {
-                // if any of type range
-                if (sourceDigest.type === VersionType.RANGE) {
-                    // get lowest possible version from ranges
-                    versionA = this.semver.minVersion(sourceDigest.version) as string;
-                }
+            // if contender value is range
+            if (contenderDigest.type === VersionType.RANGE) {
+                // get lowest possible version from ranges
+                const contenderMinimum = this.semver.minVersion(contenderDigest.version) as ISemVerDigest;
+                contender = contenderMinimum.version;
+            }
 
-                if (extremeType === VersionType.RANGE) {
-                    versionB = this.semver.minVersion(extreme) as string;
-                }
+            // if extremum value is range get it as a version
+            let extremumVersion = extremum;
+            if (extremumType === VersionType.RANGE) {
+                // get lowest possible version from ranges
+                const extremumMinimum = this.semver.minVersion(extremum) as ISemVerDigest;
+                extremumVersion = extremumMinimum.version;
             }
 
             // if new max
-            if (comparator(versionA as string, versionB as string)) {
-                extreme = sourceDigest.version;
-                extremeType = VersionType.VERSION;
-                extremeSourceKeys = [sourceKey];
+            // TODO: if equal - always select range
+            // TODO: if one is a range then for min chose range if range min less than other
+            // TODO: if one or both are a range then for max chose max
+
+            const comparator = type === 'max' ? this.semver.gt : this.semver.lt;
+            
+            if (comparator(contender as string, extremumVersion as string)) {
+                extremum = contenderDigest.version;
+                extremumType = contenderDigest.type;
+                extremumSourceKeys = [contenderSourceKey];
             }
         });
 
         return {
-            version: extreme,
-            type: extremeType,
-            sourceKeys: extremeSourceKeys
+            version: extremum,
+            type: extremumType,
+            sourceKeys: extremumSourceKeys
         };
     }
 
@@ -359,44 +366,48 @@ export class SMV extends Semver implements ISMV {
 
                 // if version and range check if version in range
                 let versionDefinition = versionA;
+                let versionSource = sourceKeyA;
                 let rangeDefinition = versionB;
+                let rangeSource = sourceKeyB;
 
                 if (versionA.type === VersionType.RANGE) {
                     versionDefinition = versionB;
+                    versionSource = sourceKeyB;
                     rangeDefinition = versionA;
+                    rangeSource = sourceKeyA;
                 }
 
                 // if version above range
                 if (this.semver.gtr(versionDefinition.version, rangeDefinition.version)) {
 
                     const description = ConflictDescription.VERSION_ABOVE_RANGE
-                        .replace('{{versionA}}', versionA.version)
-                        .replace('{{sourceA}}', sourceKeyA)
-                        .replace('{{versionB}}', versionB.version)
-                        .replace('{{sourceB}}', sourceKeyB);
+                        .replace('{{versionA}}', versionDefinition.version)
+                        .replace('{{sourceA}}', versionSource)
+                        .replace('{{versionB}}', rangeDefinition.version)
+                        .replace('{{sourceB}}', rangeSource);
 
                     conflicts.push({
                         type: ConflictType.VERSION_ABOVE_RANGE,
                         description: description,
                         conflictSources: {
-                            [sourceKeyA]: versionA,
-                            [sourceKeyB]: versionB
+                            [versionSource]: versionDefinition,
+                            [rangeSource]: rangeDefinition
                         }
                     });
                 } else if (this.semver.ltr(versionDefinition.version, rangeDefinition.version)) {
                     // if version below range
                     const description = ConflictDescription.VERSION_BELOW_RANGE
-                        .replace('{{versionA}}', versionA.version)
-                        .replace('{{sourceA}}', sourceKeyA)
-                        .replace('{{versionB}}', versionB.version)
-                        .replace('{{sourceB}}', sourceKeyB);
+                        .replace('{{versionA}}', versionDefinition.version)
+                        .replace('{{sourceA}}', versionSource)
+                        .replace('{{versionB}}', rangeDefinition.version)
+                        .replace('{{sourceB}}', rangeSource);
 
                     conflicts.push({
                         type: ConflictType.VERSION_BELOW_RANGE,
                         description: description,
                         conflictSources: {
-                            [sourceKeyA]: versionA,
-                            [sourceKeyB]: versionB
+                            [versionSource]: versionDefinition,
+                            [rangeSource]: rangeDefinition
                         }
                     });
                 }
@@ -433,6 +444,7 @@ export class SMV extends Semver implements ISMV {
             // discard conflicts
             hasConflict = false;
             conflicts = undefined;
+
         }
 
         return {

@@ -1,4 +1,5 @@
 import semver from 'semver';
+import {ISemVerDigest} from '../../interface';
 import {ISemver} from '../../interface/semver';
 
 /**
@@ -99,7 +100,7 @@ export class Semver implements ISemver {
         return this.semver.minSatisfying(versions, range);
     }
 
-    public minVersion(range: string): string | null {
+    public minVersion(range: string): ISemVerDigest | null {
         return this.semver.minVersion(range);
     }
 

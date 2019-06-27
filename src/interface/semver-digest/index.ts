@@ -1,1 +1,1 @@
-export {ISemver} from './semver.interface';
+export {ISemVerDigest} from './semver-digest.interface';

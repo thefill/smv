@@ -4,3 +4,4 @@ export * from './digest';
 export * from './merge-resolution';
 export * from './semver';
 export * from './smv';
+export * from './semver-digest';

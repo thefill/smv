@@ -1,3 +1,5 @@
+import {ISemVerDigest} from '../semver-digest';
+
 /**
  * Interface for Semver class which SMV extends
  */
@@ -191,9 +193,9 @@ export interface ISemver {
     /**
      * Return the lowest version that can possibly match the given range.
      * @param {string} range
-     * @returns {string | null}
+     * @returns {ISemVerDigest | null}
      */
-    minVersion(range: string): string | null;
+    minVersion(range: string): ISemVerDigest | null;
 
     /**
      * Return true if version is greater than all the versions possible in the range.

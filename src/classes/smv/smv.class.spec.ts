@@ -13,11 +13,15 @@ import {
  * Selection of versions used in th tests
  */
 enum TestVersion {
-    LOWEST = '1.2.3',
-    LOW = '2.3.4',
-    MEDIUM = '3.4.5',
-    HIGH = '4.5.6',
-    HIGHEST = '5.6.7'
+    LOW = '1.0.0',
+    LOW_PATCH = '1.0.5',
+    LOW_MINOR = '1.5.0',
+    MEDIUM = '2.0.0',
+    MEDIUM_PATCH = '2.0.5',
+    MEDIUM_MINOR = '2.5.0',
+    HIGH = '4.0.0',
+    HIGH_PATCH = '4.0.5',
+    HIGH_MINOR = '4.5.0'
 }
 
 /**
@@ -34,12 +38,12 @@ enum TestVersionPrefix {
  */
 interface ITestCase {
     versions: Array<[TestVersionPrefix, TestVersion]>;
-    result: TestVersion | void;
-    recommended: TestVersion;
+    result: [TestVersionPrefix, TestVersion] | void;
+    recommended: [TestVersionPrefix, TestVersion];
     recommendedSourceIndexes: number[];
-    highest: TestVersion;
+    highest: [TestVersionPrefix, TestVersion];
     highestSourceIndexes: number[];
-    lowest: TestVersion;
+    lowest: [TestVersionPrefix, TestVersion];
     lowestSourceIndexes: number[];
     conflicts: Array<{
         conflictType: ConflictType | void;
@@ -47,65 +51,196 @@ interface ITestCase {
     }>;
 }
 
+// TODO: add more test cases
+const cases: ITestCase[] = [
+    // Only versions
+    {
+        versions: [
+            [TestVersionPrefix.VERSION, TestVersion.LOW]
+        ],
+        result: [TestVersionPrefix.VERSION, TestVersion.LOW],
+        recommended: [TestVersionPrefix.VERSION, TestVersion.LOW], recommendedSourceIndexes: [0],
+        highest: [TestVersionPrefix.VERSION, TestVersion.LOW], highestSourceIndexes: [0],
+        lowest: [TestVersionPrefix.VERSION, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.VERSION, TestVersion.LOW],
+            [TestVersionPrefix.VERSION, TestVersion.LOW]
+        ],
+        result: [TestVersionPrefix.VERSION, TestVersion.LOW],
+        recommended: [TestVersionPrefix.VERSION, TestVersion.LOW], recommendedSourceIndexes: [0, 1],
+        highest: [TestVersionPrefix.VERSION, TestVersion.LOW], highestSourceIndexes: [0, 1],
+        lowest: [TestVersionPrefix.VERSION, TestVersion.LOW], lowestSourceIndexes: [0, 1],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.VERSION, TestVersion.LOW],
+            [TestVersionPrefix.VERSION, TestVersion.HIGH]
+        ],
+        result: undefined,
+        recommended: [TestVersionPrefix.VERSION, TestVersion.HIGH], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.VERSION, TestVersion.HIGH], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.VERSION, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: [
+            {
+                conflictType: ConflictType.VERSION_MISMATCH,
+                conflictSourceIndexes: [0, 1]
+            }
+        ]
+    },
+    {
+        versions: [
+            [TestVersionPrefix.VERSION, TestVersion.LOW],
+            [TestVersionPrefix.VERSION, TestVersion.MEDIUM],
+            [TestVersionPrefix.VERSION, TestVersion.HIGH]
+        ],
+        result: undefined,
+        recommended: [TestVersionPrefix.VERSION, TestVersion.HIGH], recommendedSourceIndexes: [2],
+        highest: [TestVersionPrefix.VERSION, TestVersion.HIGH], highestSourceIndexes: [2],
+        lowest: [TestVersionPrefix.VERSION, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: [
+            {
+                conflictType: ConflictType.VERSION_MISMATCH,
+                conflictSourceIndexes: [0, 1]
+            },
+            {
+                conflictType: ConflictType.VERSION_MISMATCH,
+                conflictSourceIndexes: [0, 2]
+            },
+            {
+                conflictType: ConflictType.VERSION_MISMATCH,
+                conflictSourceIndexes: [1, 2]
+            }
+        ]
+    },
+    // Only version ranges
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW]
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [0],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], highestSourceIndexes: [0],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW]
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [0, 1],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], highestSourceIndexes: [0, 1],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [0, 1],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.HIGH]
+        ],
+        result: undefined,
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.HIGH], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.HIGH], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: [
+            {
+                conflictType: ConflictType.NO_RANGE_INTERSECTION,
+                conflictSourceIndexes: [0, 1]
+            }
+        ]
+    },
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.MEDIUM],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.HIGH]
+        ],
+        result: undefined,
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.HIGH], recommendedSourceIndexes: [2],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.HIGH], highestSourceIndexes: [2],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: [
+            {
+                conflictType: ConflictType.NO_RANGE_INTERSECTION,
+                conflictSourceIndexes: [0, 1]
+            },
+            {
+                conflictType: ConflictType.NO_RANGE_INTERSECTION,
+                conflictSourceIndexes: [0, 2]
+            },
+            {
+                conflictType: ConflictType.NO_RANGE_INTERSECTION,
+                conflictSourceIndexes: [1, 2]
+            }
+        ]
+    },
+    // Version ranges and intermittent version states
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR]
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW_MINOR]
+        ],
+        result: undefined,
+        recommended: [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW_MINOR], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW_MINOR], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: [
+            {
+                conflictType: ConflictType.NO_RANGE_INTERSECTION,
+                conflictSourceIndexes: [0, 1]
+            }
+        ]
+    },
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.MEDIUM]
+        ],
+        result: undefined,
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.MEDIUM], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.MEDIUM], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: [
+            {
+                conflictType: ConflictType.NO_RANGE_INTERSECTION,
+                conflictSourceIndexes: [0, 1]
+            }
+        ]
+    },
+    // Versions and version ranges
+    {
+        versions: [
+            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.VERSION, TestVersion.LOW]
+        ],
+        result: [TestVersionPrefix.VERSION, TestVersion.LOW],
+        recommended: [TestVersionPrefix.VERSION, TestVersion.LOW], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.VERSION, TestVersion.LOW], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.VERSION, TestVersion.LOW], lowestSourceIndexes: [1],
+        conflicts: []
+    }
+];
+
 describe('SMV class', () => {
     const smv = new SMV();
 
     describe('should merge dependency lists', () => {
-
-        // TODO: add more test cases
-        const cases: ITestCase[] = [
-            {
-                versions: [
-                    [TestVersionPrefix.VERSION, TestVersion.LOW]
-                ],
-                result: TestVersion.LOW,
-                recommended: TestVersion.LOW, recommendedSourceIndexes: [0],
-                highest: TestVersion.LOW, highestSourceIndexes: [0],
-                lowest: TestVersion.LOW, lowestSourceIndexes: [0],
-                conflicts: []
-            },
-            {
-                versions: [
-                    [TestVersionPrefix.VERSION, TestVersion.LOW],
-                    [TestVersionPrefix.VERSION, TestVersion.HIGH]
-                ],
-                result: undefined,
-                recommended: TestVersion.HIGH, recommendedSourceIndexes: [1],
-                highest: TestVersion.HIGH, highestSourceIndexes: [1],
-                lowest: TestVersion.LOW, lowestSourceIndexes: [0],
-                conflicts: [
-                    {
-                        conflictType: ConflictType.VERSION_MISMATCH,
-                        conflictSourceIndexes: [0, 1]
-                    }
-                ]
-            },
-            {
-                versions: [
-                    [TestVersionPrefix.VERSION, TestVersion.LOW],
-                    [TestVersionPrefix.VERSION, TestVersion.MEDIUM],
-                    [TestVersionPrefix.VERSION, TestVersion.HIGH]
-                ],
-                result: undefined,
-                recommended: TestVersion.HIGH, recommendedSourceIndexes: [2],
-                highest: TestVersion.HIGH, highestSourceIndexes: [2],
-                lowest: TestVersion.LOW, lowestSourceIndexes: [0],
-                conflicts: [
-                    {
-                        conflictType: ConflictType.VERSION_MISMATCH,
-                        conflictSourceIndexes: [0, 1]
-                    },
-                    {
-                        conflictType: ConflictType.VERSION_MISMATCH,
-                        conflictSourceIndexes: [0, 2]
-                    },
-                    {
-                        conflictType: ConflictType.VERSION_MISMATCH,
-                        conflictSourceIndexes: [1, 2]
-                    }
-                ]
-            }
-        ];
 
         describe('with single package', () => {
             cases.forEach((caseDefinition) => {
@@ -126,21 +261,21 @@ describe('SMV class', () => {
         describe('should resolve dependency lists with multiple packages', () => {
 
             // Generate increased number of packages in merged dependency lists
-            cases.reduce((cummulativeCases: ITestCase[], currentCase) => {
-                cummulativeCases.push(currentCase);
+            cases.reduce((cumulativeCases: ITestCase[], currentCase) => {
+                cumulativeCases.push(currentCase);
 
-                describe(`with ${cummulativeCases.length} packages`, () => {
+                describe(`with ${cumulativeCases.length} package${cumulativeCases.length ? 's' : ''} `, () => {
 
                     [true, false].forEach((forceRecommended) => {
                         it(`${forceRecommended ? 'with' : 'without'} forcing recommended versions`, () => {
-                            const definitions = generateDependencyLists(...cummulativeCases);
+                            const definitions = generateDependencyLists(...cumulativeCases);
                             const resolution = smv.merge(definitions, forceRecommended);
-                            assertResolution(resolution, forceRecommended, ...cummulativeCases);
+                            assertResolution(resolution, forceRecommended, ...cumulativeCases);
                         });
                     });
                 });
 
-                return cummulativeCases;
+                return cumulativeCases;
             }, []);
         });
 
@@ -424,7 +559,11 @@ function assertResolvedExpectations(
         if (forceRecommended) {
             expect(resolution.result[packageName]).toEqual(resolved[packageName].recommended);
         } else {
-            expect(resolution.result[packageName]).toEqual(definition.result);
+            if (definition.conflicts.length) {
+                expect(resolution.result[packageName]).toBeFalsy();
+            } else {
+                expect(resolution.result[packageName]).toEqual(definition.result[0] + definition.result[1]);
+            }
         }
 
         const resolvedPackage = resolved[packageName];
@@ -441,10 +580,9 @@ function assertResolvedExpectations(
         expect(source).toBeTruthy();
 
         // translate version prefix to VersionType
-        const expectedType: VersionType = definition.versions[sourceIndex][0] === TestVersionPrefix.VERSION ?
-            VersionType.VERSION : VersionType.RANGE;
+        const expectedType: VersionType = versionPrefixToVersionType(definition.versions[sourceIndex][0]);
         expect(source.type).toEqual(expectedType);
-        expect(source.version).toEqual(definition.versions[sourceIndex][1]);
+        expect(source.version).toEqual(definition.versions[sourceIndex][0] + definition.versions[sourceIndex][1]);
 
         assertStatsExpectations(resolvedPackage, definition);
 
@@ -458,11 +596,11 @@ function assertResolvedExpectations(
  * @param {ITestCase} definition
  */
 function assertStatsExpectations(resolvedPackage: IDependencyDigest, definition: ITestCase) {
-    expect(resolvedPackage.highest.version).toEqual(definition.highest);
-    expect(resolvedPackage.highest.type).toEqual(VersionType.VERSION);
+    expect(resolvedPackage.highest.version).toEqual(definition.highest[0] + definition.highest[1]);
+    expect(resolvedPackage.highest.type).toEqual(versionPrefixToVersionType(definition.highest[0]));
 
-    expect(resolvedPackage.lowest.version).toEqual(definition.lowest);
-    expect(resolvedPackage.lowest.type).toEqual(VersionType.VERSION);
+    expect(resolvedPackage.lowest.version).toEqual(definition.lowest[0] + definition.lowest[1]);
+    expect(resolvedPackage.lowest.type).toEqual(versionPrefixToVersionType(definition.lowest[0]));
 
     const highestSourceNames = definition.highestSourceIndexes.map((index) => {
         return `source${index}`;
@@ -476,8 +614,7 @@ function assertStatsExpectations(resolvedPackage: IDependencyDigest, definition:
 }
 
 function assertRecommendationExpectations(resolvedPackage: IDependencyDigest, definition: ITestCase) {
-    // TODO: implement
-    expect(resolvedPackage.recommended).toEqual(definition.recommended);
+    expect(resolvedPackage.recommended).toEqual(definition.recommended[0] + definition.recommended[1]);
     expect(resolvedPackage.recommendedSources).toBeTruthy();
 
     // if no recommended sources
@@ -491,4 +628,8 @@ function assertRecommendationExpectations(resolvedPackage: IDependencyDigest, de
     });
 
     return Utils.sameArrays(expectedRecommendedSourceNames, Object.keys(resolvedPackage.recommendedSources));
+}
+
+function versionPrefixToVersionType(prefix: TestVersionPrefix): VersionType {
+    return prefix === TestVersionPrefix.VERSION ? VersionType.VERSION : VersionType.RANGE;
 }
