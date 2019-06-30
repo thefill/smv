@@ -185,9 +185,9 @@ const cases: ITestCase[] = [
             [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
             [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR]
         ],
-        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR],
-        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR], recommendedSourceIndexes: [1],
-        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR], highestSourceIndexes: [1],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [0],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], highestSourceIndexes: [0],
         lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [0],
         conflicts: []
     },
@@ -226,13 +226,51 @@ const cases: ITestCase[] = [
     // Versions and version ranges
     {
         versions: [
+            [TestVersionPrefix.VERSION, TestVersion.LOW],
             [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW],
-            [TestVersionPrefix.VERSION, TestVersion.LOW]
         ],
-        result: [TestVersionPrefix.VERSION, TestVersion.LOW],
-        recommended: [TestVersionPrefix.VERSION, TestVersion.LOW], recommendedSourceIndexes: [1],
-        highest: [TestVersionPrefix.VERSION, TestVersion.LOW], highestSourceIndexes: [1],
-        lowest: [TestVersionPrefix.VERSION, TestVersion.LOW], lowestSourceIndexes: [1],
+        result: [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW],
+        recommended: [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW], lowestSourceIndexes: [1],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.VERSION, TestVersion.LOW],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [1],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.VERSION, TestVersion.LOW_MINOR],
+            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW],
+        ],
+        result: undefined,
+        recommended: [TestVersionPrefix.VERSION, TestVersion.LOW_MINOR], recommendedSourceIndexes: [0],
+        highest: [TestVersionPrefix.VERSION, TestVersion.LOW_MINOR], highestSourceIndexes: [0],
+        lowest: [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW], lowestSourceIndexes: [1],
+        conflicts: [
+            {
+                conflictType: ConflictType.VERSION_ABOVE_RANGE,
+                conflictSourceIndexes: [0, 1]
+            }
+        ]
+    },
+    {
+        versions: [
+            [TestVersionPrefix.VERSION, TestVersion.LOW_MINOR],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [1],
         conflicts: []
     }
 ];

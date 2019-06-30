@@ -6,7 +6,8 @@ import {
     IDependencyResolutionDigest,
     IDependencyStatsDigest,
     IMergeInput,
-    IMergeResolution, ISemVerDigest,
+    IMergeResolution,
+    ISemVerDigest,
     ISMV,
     ISourceDependencyDigest,
     IVersion,
@@ -244,7 +245,7 @@ export class SMV extends Semver implements ISMV {
 
         Object.keys(digest.sources).forEach((contenderSourceKey) => {
             const contenderDigest: IVersionDefinition = digest.sources[contenderSourceKey];
-            let contender = contenderDigest.version;
+            const contender = contenderDigest.version;
             const contenderType = contenderDigest.type;
 
             // if no max set it to current element
@@ -255,41 +256,113 @@ export class SMV extends Semver implements ISMV {
                 return;
             }
 
-            // if same version as max
-            if (contender === extremum) {
+            // if same version as extremum
+            if (contender === extremum && contenderType === extremumType) {
                 extremumSourceKeys.push(contenderSourceKey);
                 return;
             }
 
+            let extremumMinimum = extremum;
+            let contenderMinimum = contender;
+
             // if contender value is range
-            if (contenderDigest.type === VersionType.RANGE) {
+            if (contenderType === VersionType.RANGE) {
                 // get lowest possible version from ranges
-                const contenderMinimum = this.semver.minVersion(contenderDigest.version) as ISemVerDigest;
-                contender = contenderMinimum.version;
+                const contenderVersion = this.semver.minVersion(contenderDigest.version) as ISemVerDigest;
+                contenderMinimum = contenderVersion.version;
             }
 
             // if extremum value is range get it as a version
-            let extremumVersion = extremum;
             if (extremumType === VersionType.RANGE) {
                 // get lowest possible version from ranges
-                const extremumMinimum = this.semver.minVersion(extremum) as ISemVerDigest;
-                extremumVersion = extremumMinimum.version;
+                const extremumVersion = this.semver.minVersion(extremum) as ISemVerDigest;
+                extremumMinimum = extremumVersion.version;
             }
 
-            // if new max
-            // TODO: if equal - always select range
-            // TODO: if one is a range then for min chose range if range min less than other
-            // TODO: if one or both are a range then for max chose max
+            // if versions are equal
+            if (this.semver.eq(contenderMinimum as string, extremumMinimum as string)) {
+                // we know both have not the same type so
+                // only select contender if its type is range,
+                // else extremum is range and its preferred
+                if (contenderType === VersionType.RANGE) {
+                    extremum = contenderDigest.version;
+                    extremumType = contenderDigest.type;
+                    extremumSourceKeys = [contenderSourceKey];
+                }
+                return;
+            }
 
-            const comparator = type === 'max' ? this.semver.gt : this.semver.lt;
-            
-            if (comparator(contender as string, extremumVersion as string)) {
+            // check if contender in the new extremum
+            let newExtremum = false;
+
+            // for max check
+            if (type === 'max') {
+
+                switch (contenderType + extremumType) {
+                    // if contender is range and extremum is range
+                    case VersionType.RANGE + VersionType.RANGE:
+                        // if contender minimum version is above extremum minimum version
+                        // and if contender minimum version is above possible values of extremum range
+                        newExtremum = this.semver.gt(contenderMinimum, extremumMinimum) &&
+                            this.semver.gtr(contenderMinimum, extremum);
+                        break;
+                    // if contender is range and extremum is version
+                    case VersionType.RANGE + VersionType.VERSION:
+                        // if extremum version is below all possible contender versions
+                        newExtremum = !this.semver.gtr(extremum, contender);
+                        break;
+                    // if contender is version and extremum is range
+                    case VersionType.VERSION + VersionType.RANGE:
+                        // if contender version is above possible values of extremum range
+                        newExtremum = this.semver.gtr(contender, extremum);
+                        break;
+                    // if contender is version and extremum is version
+                    case VersionType.VERSION + VersionType.VERSION:
+                        // if contender version is above extremum version
+                        newExtremum = this.semver.gt(contender, extremum);
+                        break;
+                }
+            }
+
+            // for min check
+            if (type === 'min') {
+
+                switch (contenderType + extremumType) {
+                    // if contender is range and extremum is range
+                    case VersionType.RANGE + VersionType.RANGE:
+                        // if contender minimum version is below extremum minimum version
+                        // and if contender minimum version is below possible values of extremum range
+                        newExtremum = this.semver.lt(contenderMinimum, extremumMinimum) &&
+                            this.semver.ltr(contenderMinimum, extremum);
+                        break;
+                    // if contender is range and extremum is version
+                    case VersionType.RANGE + VersionType.VERSION:
+                        // if extremum version is above all possible contender versions
+                        newExtremum = !this.semver.ltr(extremum, contender);
+                        break;
+                    // if contender is version and extremum is range
+                    case VersionType.VERSION + VersionType.RANGE:
+                        // if contender version is below possible values of extremum range
+                        newExtremum = this.semver.ltr(contender, extremum);
+                        break;
+                    // if contender is version and extremum is version
+                    case VersionType.VERSION + VersionType.VERSION:
+                        // if contender version is below extremum version
+                        newExtremum = this.semver.lt(contender, extremum);
+                        break;
+                }
+            }
+
+            if (newExtremum) {
+                // set contender as new extremum
                 extremum = contenderDigest.version;
                 extremumType = contenderDigest.type;
                 extremumSourceKeys = [contenderSourceKey];
             }
+
         });
 
+        // return calculated extremum
         return {
             version: extremum,
             type: extremumType,
