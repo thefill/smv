@@ -55,7 +55,7 @@ export class SMV extends Semver implements ISMV {
      * @param {boolean} forceRecommended
      * @returns {ISourceDependencyDigest}
      */
-    protected getDigest(dependencies: IMergeInput, forceRecommended = false): ISourceDependencyDigest {
+    protected getDigest(dependencies: IMergeInput, forceRecommended: boolean): ISourceDependencyDigest {
         const inputDependencies: IMergeInput = SMV.decouple(dependencies);
 
         // get initial digest with list of all packages across resources
@@ -281,13 +281,24 @@ export class SMV extends Semver implements ISMV {
 
             // if versions are equal
             if (this.semver.eq(contenderMinimum as string, extremumMinimum as string)) {
-                // we know both have not the same type so
-                // only select contender if its type is range,
-                // else extremum is range and its preferred
-                if (contenderType === VersionType.RANGE) {
+                if (contenderType !== VersionType.RANGE) {
+                    return;
+                }
+                if (contenderType !== extremumType) {
+                    // only select contender if its type is range,
+                    // else extremum is range and its preferred
                     extremum = contenderDigest.version;
                     extremumType = contenderDigest.type;
                     extremumSourceKeys = [contenderSourceKey];
+                } else {
+                    // if both are of type range
+                    // and contender range not patch (naive check)
+                    // else extremum is a minor range (naive assumption) and its preferred
+                    if (contender.search('~') === -1) {
+                        extremum = contenderDigest.version;
+                        extremumType = contenderDigest.type;
+                        extremumSourceKeys = [contenderSourceKey];
+                    }
                 }
                 return;
             }
@@ -304,7 +315,9 @@ export class SMV extends Semver implements ISMV {
                         // if contender minimum version is above extremum minimum version
                         // and if contender minimum version is above possible values of extremum range
                         newExtremum = this.semver.gt(contenderMinimum, extremumMinimum) &&
-                            this.semver.gtr(contenderMinimum, extremum);
+                            this.semver.gtr(contenderMinimum, extremum) ||
+                            this.semver.gt(extremumMinimum, contenderMinimum) &&
+                            !this.semver.gtr(extremumMinimum, contender);
                         break;
                     // if contender is range and extremum is version
                     case VersionType.RANGE + VersionType.VERSION:
@@ -333,7 +346,9 @@ export class SMV extends Semver implements ISMV {
                         // if contender minimum version is below extremum minimum version
                         // and if contender minimum version is below possible values of extremum range
                         newExtremum = this.semver.lt(contenderMinimum, extremumMinimum) &&
-                            this.semver.ltr(contenderMinimum, extremum);
+                            this.semver.ltr(contenderMinimum, extremum) ||
+                            this.semver.lt(extremumMinimum, contenderMinimum) &&
+                            !this.semver.ltr(extremumMinimum, contender);
                         break;
                     // if contender is range and extremum is version
                     case VersionType.RANGE + VersionType.VERSION:
@@ -382,10 +397,8 @@ export class SMV extends Semver implements ISMV {
         // for each combination check conflicts
         const sourceKeys = Object.keys(digest.sources);
 
-        let x = 0;
         sourceKeys.forEach((sourceKeyA) => {
-            for (let i = x; i < sourceKeys.length; i++) {
-                const sourceKeyB = sourceKeys[i];
+            for (const sourceKeyB of sourceKeys) {
 
                 // don't compare same entries
                 if (sourceKeyA === sourceKeyB) {
@@ -485,7 +498,6 @@ export class SMV extends Semver implements ISMV {
                     });
                 }
             }
-            x++;
         });
         const hasConflict = !!conflicts.length;
 

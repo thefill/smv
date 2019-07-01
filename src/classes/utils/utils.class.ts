@@ -1,3 +1,6 @@
+/**
+ * Class with common utils
+ */
 export class Utils {
 
     /**
@@ -21,6 +24,6 @@ export class Utils {
         const unique = new Set(arrayA.concat(arrayB));
 
         // if match e.g. same values on both arrays
-        return arrayA.length === unique.size;
+        return arrayA.length === arrayB.length && arrayA.length === unique.size;
     }
 }

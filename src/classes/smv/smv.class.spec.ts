@@ -141,6 +141,17 @@ const cases: ITestCase[] = [
     {
         versions: [
             [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW]
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [0],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], highestSourceIndexes: [0],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
             [TestVersionPrefix.MINOR_RANGE, TestVersion.HIGH]
         ],
         result: undefined,
@@ -193,6 +204,39 @@ const cases: ITestCase[] = [
     },
     {
         versions: [
+            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW_MINOR],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR]
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR], lowestSourceIndexes: [1],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR],
+            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW_MINOR]
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR], recommendedSourceIndexes: [0],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR], highestSourceIndexes: [0],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR], lowestSourceIndexes: [0],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW_MINOR],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW]
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [1],
+        conflicts: []
+    },
+    {
+        versions: [
             [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW],
             [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW_MINOR]
         ],
@@ -227,7 +271,7 @@ const cases: ITestCase[] = [
     {
         versions: [
             [TestVersionPrefix.VERSION, TestVersion.LOW],
-            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW]
         ],
         result: [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW],
         recommended: [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW], recommendedSourceIndexes: [1],
@@ -238,7 +282,7 @@ const cases: ITestCase[] = [
     {
         versions: [
             [TestVersionPrefix.VERSION, TestVersion.LOW],
-            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW]
         ],
         result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
         recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [1],
@@ -249,7 +293,7 @@ const cases: ITestCase[] = [
     {
         versions: [
             [TestVersionPrefix.VERSION, TestVersion.LOW_MINOR],
-            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.PATCH_RANGE, TestVersion.LOW]
         ],
         result: undefined,
         recommended: [TestVersionPrefix.VERSION, TestVersion.LOW_MINOR], recommendedSourceIndexes: [0],
@@ -264,13 +308,51 @@ const cases: ITestCase[] = [
     },
     {
         versions: [
+            [TestVersionPrefix.VERSION, TestVersion.LOW],
+            [TestVersionPrefix.PATCH_RANGE, TestVersion.MEDIUM]
+        ],
+        result: undefined,
+        recommended: [TestVersionPrefix.PATCH_RANGE, TestVersion.MEDIUM], recommendedSourceIndexes: [1],
+        highest: [TestVersionPrefix.PATCH_RANGE, TestVersion.MEDIUM], highestSourceIndexes: [1],
+        lowest: [TestVersionPrefix.VERSION, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: [
+            {
+                conflictType: ConflictType.VERSION_BELOW_RANGE,
+                conflictSourceIndexes: [0, 1]
+            }
+        ]
+    },
+    {
+        versions: [
             [TestVersionPrefix.VERSION, TestVersion.LOW_MINOR],
-            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW]
         ],
         result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
         recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [1],
         highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], highestSourceIndexes: [1],
         lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [1],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.VERSION, TestVersion.LOW_MINOR]
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [0],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], highestSourceIndexes: [0],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [0],
+        conflicts: []
+    },
+    {
+        versions: [
+            [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+            [TestVersionPrefix.VERSION, TestVersion.LOW]
+        ],
+        result: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW],
+        recommended: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], recommendedSourceIndexes: [0],
+        highest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], highestSourceIndexes: [0],
+        lowest: [TestVersionPrefix.MINOR_RANGE, TestVersion.LOW], lowestSourceIndexes: [0],
         conflicts: []
     }
 ];
@@ -283,7 +365,7 @@ describe('SMV class', () => {
         describe('with single package', () => {
             cases.forEach((caseDefinition) => {
                 describe('and resolve correctly', () => {
-                    [true, false].forEach((forceRecommended) => {
+                    [undefined, true, false].forEach((forceRecommended) => {
                         it(`${forceRecommended ? 'with' : 'without'} forcing recommended versions`, () => {
                             const dependencies = generateDependencyLists(caseDefinition);
                             const resolution = smv.merge(dependencies, forceRecommended) as IMergeResolution;
@@ -295,7 +377,6 @@ describe('SMV class', () => {
             });
         });
 
-        // TODO: enable
         describe('should resolve dependency lists with multiple packages', () => {
 
             // Generate increased number of packages in merged dependency lists
@@ -304,11 +385,16 @@ describe('SMV class', () => {
 
                 describe(`with ${cumulativeCases.length} package${cumulativeCases.length ? 's' : ''} `, () => {
 
-                    [true, false].forEach((forceRecommended) => {
+                    [undefined, true, false].forEach((forceRecommended) => {
                         it(`${forceRecommended ? 'with' : 'without'} forcing recommended versions`, () => {
                             const definitions = generateDependencyLists(...cumulativeCases);
                             const resolution = smv.merge(definitions, forceRecommended);
-                            assertResolution(resolution, forceRecommended, ...cumulativeCases);
+
+                            if (typeof forceRecommended === 'boolean') {
+                                assertResolution(resolution, forceRecommended, ...cumulativeCases);
+                            } else {
+                                assertResolution(resolution, undefined, ...cumulativeCases);
+                            }
                         });
                     });
                 });
@@ -317,22 +403,27 @@ describe('SMV class', () => {
             }, []);
         });
 
-        // TODO: enable
-        it.skip('should return no results for empty dependency lists', () => {
-            cases.forEach((caseDefinition) => {
-                // TODO: implement
-                // tslint:disable-next-line
-                console.log(1);
-            });
+        it('should return no results for empty dependency lists', () => {
+            const resolution: IMergeResolution = smv.merge({}) as IMergeResolution;
+            expect(resolution.conflicts).toBeFalsy();
+            expect(resolution.result).toEqual({});
+            expect(resolution.hasConflicts).toBeFalsy();
+            expect(resolution.resolved).toEqual({});
         });
 
-        // TODO: enable
+        // TODO: enable - invalid - no error throw
         it.skip('should throw error for invalid dependencies', () => {
-            cases.forEach((caseDefinition) => {
-                // TODO: implement
-                // tslint:disable-next-line
-                console.log(1);
-            });
+            try {
+                const resolution = smv.merge({
+                    sourceA: {
+                        package: 'sadsa----a.b.c'
+                    }
+                });
+                console.log(resolution);
+
+            } catch (e) {
+                expect(e).toBeFalsy();
+            }
         });
 
     });
@@ -380,7 +471,7 @@ function generateDependencyLists(...definitions: ITestCase[]): IMergeInput {
  */
 function assertResolution(
     resolution: IMergeResolution | null,
-    forceRecommended: boolean,
+    forceRecommended: boolean | undefined,
     ...definitions: ITestCase[]
 ) {
     expect(resolution).toBeTruthy();
@@ -468,7 +559,7 @@ function assertExpectedConflicts(conflict: IDependencyConflictDigest, definition
 function assertGlobalExpectations(
     resolution: IMergeResolution,
     definitions: ITestCase[],
-    forceRecommended: boolean
+    forceRecommended: boolean | undefined
 ) {
 
     const hasConflicts = definitions.some((definition) => {
@@ -579,7 +670,7 @@ function assertResolvedExpectations(
     packageName: string,
     sourceName: string,
     sourceIndex: number,
-    forceRecommended: boolean
+    forceRecommended: boolean | undefined
 ) {
     // assert result
     if (definition.result || forceRecommended) {
