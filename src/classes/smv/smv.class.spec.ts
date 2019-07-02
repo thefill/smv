@@ -403,29 +403,27 @@ describe('SMV class', () => {
             }, []);
         });
 
-        it('should return no results for empty dependency lists', () => {
-            const resolution: IMergeResolution = smv.merge({}) as IMergeResolution;
-            expect(resolution.conflicts).toBeFalsy();
-            expect(resolution.result).toEqual({});
-            expect(resolution.hasConflicts).toBeFalsy();
-            expect(resolution.resolved).toEqual({});
-        });
+    });
 
-        // TODO: enable - invalid - no error throw
-        it.skip('should throw error for invalid dependencies', () => {
-            try {
-                const resolution = smv.merge({
-                    sourceA: {
-                        package: 'sadsa----a.b.c'
-                    }
-                });
-                console.log(resolution);
+    it('should return no results for empty dependency lists', () => {
+        const resolution: IMergeResolution = smv.merge({}) as IMergeResolution;
+        expect(resolution.conflicts).toBeFalsy();
+        expect(resolution.result).toEqual({});
+        expect(resolution.hasConflicts).toBeFalsy();
+        expect(resolution.resolved).toEqual({});
+    });
 
-            } catch (e) {
-                expect(e).toBeFalsy();
-            }
-        });
-
+    // TODO: enable - invalid - no error throw
+    it('should throw error for invalid dependencies', () => {
+        try {
+            const resolution = smv.merge({
+                sourceA: {
+                    packageA: 'a.b.c'
+                }
+            });
+        } catch (e) {
+            expect(e).toBeTruthy();
+        }
     });
 
 });

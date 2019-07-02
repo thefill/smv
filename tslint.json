@@ -12,6 +12,7 @@
         "no-trailing-whitespace": false,
         "object-literal-sort-keys": false,
         "object-literal-shorthand": false,
-        "one-line": false
+        "one-line": false,
+        "forin": false
     }
 }

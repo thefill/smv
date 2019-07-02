@@ -43,6 +43,13 @@ export class SMV extends Semver implements ISMV {
      * @returns {IMergeResolution | null}
      */
     public merge(dependencies: IMergeInput, forceRecommended = false): IMergeResolution | null {
+
+        // validate dependencies
+        const invalid = this.validateDependencies(dependencies);
+        if (invalid.length) {
+            throw new Error(invalid.join(' | '));
+        }
+
         const digest: ISourceDependencyDigest = this.getDigest(dependencies, forceRecommended);
 
         // convert digest to output resolution
@@ -64,6 +71,33 @@ export class SMV extends Semver implements ISMV {
         digest = this.getMergeDigest(digest, forceRecommended);
 
         return digest;
+    }
+
+    /**
+     * Throws error if any of the dependencies are invalid
+     * @param {IMergeInput} dependencies
+     */
+    protected validateDependencies(dependencies: IMergeInput): string[] {
+        const invalid: string[] = [];
+
+        if (!Object.keys(dependencies).length) {
+            return invalid;
+        }
+
+        for (const sourceKey in dependencies) {
+            const packages = dependencies[sourceKey];
+            //
+            for (const packageKey in packages) {
+                const version = packages[packageKey];
+
+                // if invalid version / range
+                if (!this.semver.valid(version) && !this.semver.validRange(version)) {
+                    invalid.push(`Invalid version ${version} of package ${packageKey} for source ${sourceKey}`);
+                }
+            }
+        }
+
+        return invalid;
     }
 
     /**
