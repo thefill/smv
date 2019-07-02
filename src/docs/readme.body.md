@@ -2,9 +2,9 @@
 
 ## Main features
 
-*   tiny & easy to use: only 3 methods
-*   delayed dependency initialisation
-*   No dependencies (for dist)
+*   tiny & easy to use: 1 powerful merge method, rest is plain old semver
+*   returns descriptive merge conflict details
+*   1 dependency (for dist)
 *   Typescript types included
 *   exposes esm/cjs modules
 *   always 100% test coverage
@@ -18,257 +18,108 @@
 
 ## Installation
 
-<pre>npm install --save jetli</pre>
+<pre>npm install --save smv</pre>
 
 or
 
-<pre>yarn add jetli</pre>
+<pre>yarn add smv</pre>
 
 or
 
-<pre>pnpm --save jetli</pre>
+<pre>pnpm --save smv</pre>
 
 ## Basic usage
 
-Jetli allows you to inject consistently classes, functions and primitives across whole application.
+### Doing it semver-style 
 
-### Inject & instantiate class via 'get' method
+SMV is a typed replacement for semver package as it proxies all semver-like methods to the semver.
+Full list of supported methods can be found [on the semver github page](https://www.npmjs.com/package/semver).
 
-Injecting instances of classes is trivial with jetli - just use 'get' method without any additional options.
+<pre class="runkit-source">const smv = require('smv@0.0.2').smv;
 
-<pre class="runkit-source">const jetli = require('jetli@3.0.1').jetli;
+const major = smv.major('1.2.3');
+console.log('major', major);
 
-class Attack {
-    constructor(){
-        this.id = Math.round(Math.random() * 100);
-        console.log(`Attack no. ${this.id} ready!`);
-    }
-    punch(){
-        console.log(`Attack no. ${this.id} executed!`);
-    }
+const equal = smv.eq('1.2.3', '2.3.4');
+console.log('equal?', major);
+
+const greater = smv.gt('1.2.3', '2.3.4');
+console.log('greater?', major);
+
+const lower = smv.ltr('1.2.3', '^1.3.4');
+console.log('lower than range?', lower);</pre>
+
+### Dependency merge
+
+With SMV you can resolve dependencies from multiple sources. 
+
+Imagine how you would programmatically merge devDependencies from few package.json files?
+
+<pre class="runkit-source">const smv = require('smv@0.0.2').smv;
+
+const sourceA = {
+    packageA: '1.2.3',
+    packageB: '1.2.3',
+    packageC: '0.0.1',
+}
+const sourceB = {
+    packageA: '1.2.3',
+    packageB: '1.2.3'
 }
 
-const fighter1 = await jetli.get(Attack);
-const fighter2 = await jetli.get(Attack);
+const digest = smv.merge({sourceA, sourceB});
 
-fighter1.punch();
-fighter2.punch();</pre>
+console.log('Has conflicts?', digest.hasConflicts);
+console.log('Final result', digest.result);
+console.log('Conflicts', digest.conflicts);
+console.log('Resolved digest', digest.resolved);</pre>
 
-### Inject & instantiate class via 'set' and retrieve instance via 'get' methods
+Un-conflicting dependencies are easy - you can deal with them using basic JS techniques.
 
-Functions, already instantiated objects or primitive values like array, string and numbers can be injected via 'get' method priory to registering them with jetli. 
+How about conflicting dependencies?
 
-Registration is provided via 'set' method and requires you to provide string token that identifies the injectable element.
+<pre class="runkit-source">const smv = require('smv@0.0.2').smv;
 
-<pre class="runkit-source">const jetli = require('jetli@3.0.1').jetli;
-
-class Attack {
-    constructor(){
-        this.id = Math.round(Math.random() * 100);
-        console.log(`Attack no. ${this.id} ready!`);
-    }
-    punch(){
-        console.log(`Attack no. ${this.id} executed!`);
-    }
+const sourceA = {
+    packageA: '1.2.3',
+    packageB: '^1.2.3',
+    packageC: '0.0.1',
 }
-await jetli.set('attack', Attack);
-
-const fighter1 = await jetli.get('attack');
-const fighter2 = await jetli.get('attack');
-
-fighter1.punch();
-fighter2.punch();</pre>
-
-### Inject primitives via id
-
-As explained in previous example primitives can be easily used across your applications with associated string id provided during registration.
-
-<pre class="runkit-source">const jetli = require('jetli@3.0.1').jetli;
-
-const someNumber = 123;
-const someString = 'punch';
-const someArray = [123, 'punch'];
-
-await jetli.set('number', someNumber);
-await jetli.set('string', someString);
-await jetli.set('array', someArray);
-
-const injectedNumber = await jetli.get('number');
-console.log(injectedNumber);
-
-const injectedString = await jetli.get('string');
-console.log(injectedString);
-
-const injectedArray = await jetli.get('array');
-console.log(injectedArray);</pre>
-
-### Create initialisation-friendly services
-
-To use Jetli to full extend implement services that expose init method. This method is the safest place to use Jelit injector inside injectable services.
-
-If you already initialised injectable and dont want jetli to call "init" make sure to set "initialise" property to true;
-
-<pre class="runkit-source">const jetli = require('jetli@3.0.1').jetli;
-
-await jetli.set('someNumber', 123);
-
-class JetliFriendlyService {
-    constructor(){
-        this.initialised = false;
-    }
-    
-    async init(jetli){
-        this.id = await jetli.get('someNumber');
-        console.log(`Attack no. ${this.id} ready!`);
-        return Promise.resolve();
-    }
-
-    punch(){
-        console.log(`Attack no. ${this.id} executed!`);
-    }
+const sourceB = {
+    packageA: '1.2.3',
+    packageB: '1.0.3'
 }
 
-const fighter1 = await jetli.get(JetliFriendlyService);
-const fighter2 = await jetli.get(JetliFriendlyService);
+const digest = smv.merge({sourceA, sourceB});
 
-fighter1.punch();
-fighter2.punch();</pre>
+console.log('Has conflicts?', digest.hasConflicts);
+console.log('Final result', digest.result);
+console.log('Conflicts', digest.conflicts);
+console.log('Resolved digest', digest.resolved);</pre>
 
 ## Advanced usage
 
-### Delay initialisation of services until used (on injection request)
+### Forced dependency merge
 
-Have enough of overhead when all those services initialises at once? Register them and request initialisation only when injection is requested.
+There are situations when you don't want to waste time resolving conflicts. 
+SMV allows you to enforce recommended versions (from resolved digest) as a final result.
 
-<pre class="runkit-source">const jetli = require('jetli@3.0.1').jetli;
+<pre class="runkit-source">const smv = require('smv@0.0.2').smv;
 
-class Attack {
-    constructor(){
-        this.id = Math.round(Math.random() * 100);
-        console.log(`Attack no. ${this.id} ready!`);
-    }
-    punch(){
-        console.log(`Attack no. ${this.id} executed!`);
-    }
+const sourceA = {
+    packageA: '1.2.3',
+    packageB: '^1.2.3',
+    packageC: '0.0.1',
+}
+const sourceB = {
+    packageA: '1.2.3',
+    packageB: '1.0.3'
 }
 
-await jetli.set('attack', Attack, true);
-console.log('No initialisation at this point');
+// notice 2nd param passed to the merge method - thats forceRecommended flag
+const digest = smv.merge({sourceA, sourceB}, true);
 
-const fighter1 = await jetli.get('attack');
-const fighter2 = await jetli.get('attack');
-
-fighter1.punch();
-fighter2.punch();</pre>
-
-### Pass arguments to services constructor
-
-<pre class="runkit-source">const jetli = require('jetli@3.0.1').jetli;
-
-class Attack {
-    constructor(id){
-        this.id = id;
-        console.log(`Attack no. ${this.id} ready!`);
-    }
-    punch(){
-        console.log(`Attack no. ${this.id} executed!`);
-    }
-}
-const externalId = Math.round(Math.random() * 100);
-await jetli.set('attack', Attack, false, externalId);
-
-const fighter1 = await jetli.get('attack');
-const fighter2 = await jetli.get('attack');
-
-fighter1.punch();
-fighter2.punch();</pre>
-
-### Inject services into other services without circular dependency
-
-Jetli uses battle-tested method to fight 'cyclic dependencies' - optional initialisation callback. Injector searches for optional "init" method to call it and as an argument to provide instance of injector itself. This method provide safe moment to inject all dependencies required by service - you can be sure that all dependencies will be already initialised.
-
-<pre class="runkit-source">const jetli = require('jetli@3.0.1').jetli;
-
-class ServiceA {
-    constructor(){
-        this.initialised = false;
-    }
-    
-    async init(jetli){
-        this.service = await jetli.get(ServiceB);
-        this.id = this.service.getNumber();
-        return Promise.resolve();
-    }
-
-    getNumber(){
-        return 123;
-    }
-
-    getId(){
-        return this.id;
-    }
-}
-
-class ServiceB {
-    constructor(){
-        this.initialised = false;
-    }
-    
-    async init(jetli){
-        this.service = await jetli.get(ServiceA);
-        this.id = this.service.getNumber();
-        return Promise.resolve();
-    }
-
-    getNumber(){
-        return 456;
-    }
-
-    getId(){
-        return this.id;
-    }
-}
-
-const serviceA = await jetli.get(ServiceA);
-const serviceB = await jetli.get(ServiceB);
-
-console.log(serviceA.getId());
-console.log(serviceB.getId());</pre>
-
-### Mock services for test purposes
-
-Its rather trivial to mock module dependencies if you have total control whats injected where, right? ith Jetli you can reset any previously registered/injected dependencies and introduce your own mocks / stubs.
-
-<pre class="runkit-source">const jetli = require('jetli@3.0.1').jetli;
-
-class Attack {
-    constructor(){
-        this.id = Math.round(Math.random() * 100);
-        console.log(`Attack no. ${this.id} ready!`);
-    }
-    punch(){
-        console.log(`Attack no. ${this.id} executed!`);
-    }
-}
-
-class AttackMock {
-    constructor(){
-        console.log(`Attack mocked!`);
-    }
-    punch(){
-        console.log(`Mocked attack execution!`);
-    }
-}
-
-// somewhere in your code
-await jetli.set('attack', Attack);
-
-const fighter1 = await jetli.get('attack');
-fighter1.punch();
-
-// somewhere in your test
-jetli.unset('attack');
-await jetli.set('attack', AttackMock);
-
-const fighter2 = await jetli.get('attack');
-fighter2.punch();</pre>
+console.log('Has conflicts?', digest.hasConflicts);
+console.log('Final result', digest.result);
+console.log('Conflicts', digest.conflicts);
+console.log('Resolved digest', digest.resolved);</pre>

@@ -117,7 +117,7 @@
         const data = await response.json();
         let htmlString = '<ul>';
         for (let file of data) {
-            htmlString += `<li><a href="${file.path}">API for Jetli v${file.name}</a></li>`;
+            htmlString += `<li><a href="${file.path}">API for SMV v${file.name}</a></li>`;
         }
         htmlString += '</ul>';
         document.querySelector('.tsd-panel.tsd-typography').innerHTML += htmlString;
