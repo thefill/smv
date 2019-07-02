@@ -33,21 +33,21 @@ export interface ISemver {
      * @param {string} version
      * @returns {string | null}
      */
-    major(version: string): string | null;
+    major(version: string): number | null;
 
     /**
      * Return the minor version number.
      * @param {string} version
      * @returns {string | null}
      */
-    minor(version: string): string | null;
+    minor(version: string): number | null;
 
     /**
      * Return the patch version number.
      * @param {string} version
      * @returns {string | null}
      */
-    patch(version: string): string | null;
+    patch(version: string): number | null;
 
     /**
      * Return true if the two supplied ranges or comparators intersect.
@@ -64,7 +64,7 @@ export interface ISemver {
      * @param {string} version
      * @returns {string | null}
      */
-    parse(version: string): string | null;
+    parse(version: string): ISemVerDigest | null;
 
     /**
      * versionA > versionB
@@ -225,9 +225,9 @@ export interface ISemver {
     /**
      * Try to parse dirty version
      * @param {string} version
-     * @returns {string}
+     * @returns {ISemVerDigest}
      */
-    coerce(version: string): string;
+    coerce(version: string): ISemVerDigest;
 
     /**
      * Clean dirty bersion

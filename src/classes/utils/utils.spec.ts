@@ -82,10 +82,6 @@ describe('Utils class', () => {
         it('should correctly check for similarities', () => {
             sets.forEach((set) => {
                 const result = Utils.sameArrays(set.providedA, set.providedB);
-                if (result !== set.expected) {
-                    console.log(set.providedA);
-                    console.log(set.providedB);
-                }
                 expect(result).toEqual(set.expected);
             });
         });

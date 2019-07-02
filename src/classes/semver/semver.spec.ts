@@ -4,17 +4,6 @@ import Mock = jest.Mock;
 
 jest.mock('semver');
 
-//
-// class SemverMock extends Semver {
-//     public stubbedSemver: Mock;
-//
-//     public stub() {
-//         // mock semver
-//         this.semver = jest.fn() as any;
-//         this.stubbedSemver = this.semver as any;
-//     }
-// }
-
 describe('Semver wrapper class', () => {
     const semverWrapper = new Semver();
     // semver.stub();

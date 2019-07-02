@@ -20,15 +20,15 @@ export class Semver implements ISemver {
         return this.semver.prerelease(version);
     }
 
-    public major(version: string): string | null {
+    public major(version: string): number | null {
         return this.semver.major(version);
     }
 
-    public minor(version: string): string | null {
+    public minor(version: string): number | null {
         return this.semver.minor(version);
     }
 
-    public patch(version: string): string | null {
+    public patch(version: string): number | null {
         return this.semver.patch(version);
     }
 
@@ -36,7 +36,7 @@ export class Semver implements ISemver {
         return this.semver.intersects(rangeA, rangeB, loose);
     }
 
-    public parse(version: string): string | null {
+    public parse(version: string): ISemVerDigest | null {
         return this.semver.parse(version);
     }
 
@@ -116,7 +116,7 @@ export class Semver implements ISemver {
         return this.semver.outside(version, range, hilo);
     }
 
-    public coerce(version: string): string {
+    public coerce(version: string): ISemVerDigest {
         return this.semver.coerce(version);
     }
 
