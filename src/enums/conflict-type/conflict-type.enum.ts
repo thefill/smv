@@ -1,0 +1,9 @@
+/**
+ * Possible version conflict types
+ */
+export enum ConflictType {
+    VERSION_MISMATCH = 'VERSION_MISMATCH',
+    VERSION_ABOVE_RANGE = 'VERSION_ABOVE_RANGE',
+    VERSION_BELOW_RANGE = 'VERSION_BELOW_RANGE',
+    NO_RANGE_INTERSECTION = 'NO_RANGE_INTERSECTION'
+}
