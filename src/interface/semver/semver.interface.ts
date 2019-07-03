@@ -1,7 +1,7 @@
 import {ISemVerDigest} from '../semver-digest';
 
 /**
- * Interface for Semver class which SMV extends
+ * Interface for Semver class (semver wrapper) which SMV extends
  */
 export interface ISemver {
 

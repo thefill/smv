@@ -263,7 +263,7 @@ export class SMV extends Semver implements ISMV {
     }
 
     /**
-     * Get min or max for digest
+     * Get min or max version for digest
      * @param {IDependencyDigest} digest
      * @param {"min" | "max"} type
      * @returns {{maxVersion: IVersion; maxVersionType: VersionType; MaxSourceKeys: string[]}}

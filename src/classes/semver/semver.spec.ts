@@ -6,7 +6,6 @@ jest.mock('semver');
 
 describe('Semver wrapper class', () => {
     const semverWrapper = new Semver();
-    // semver.stub();
 
     const methodSpecs = [
         {
@@ -127,7 +126,7 @@ describe('Semver wrapper class', () => {
         }
     ];
 
-    describe('should pass calls to the semver', () => {
+    describe('should pass method calls to the semver', () => {
         methodSpecs.forEach((methodSpec) => {
             it(`for ${methodSpec.name}`, () => {
                 semverWrapper[methodSpec.name](...methodSpec.args);

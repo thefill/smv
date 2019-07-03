@@ -1,5 +1,5 @@
 /**
- * Possible conflict types
+ * Possible version conflict types
  */
 export enum ConflictType {
     VERSION_MISMATCH = 'VERSION_MISMATCH',
