@@ -1,6 +1,6 @@
 {
     "name": "smv",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Typed semantic versioner & semantic diff tool",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
