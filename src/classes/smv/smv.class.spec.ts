@@ -10,7 +10,7 @@ import {
 } from '../../';
 
 /**
- * Selection of versions used in th tests
+ * Selection of versions used in the tests
  */
 enum TestVersion {
     LOW = '1.0.0',
@@ -51,7 +51,6 @@ interface ITestCase {
     }>;
 }
 
-// TODO: add more test cases
 const cases: ITestCase[] = [
     // Only versions
     {

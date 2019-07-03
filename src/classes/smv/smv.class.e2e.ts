@@ -2,7 +2,6 @@ import {Semver} from '../semver';
 
 describe('SMV class should integrate with semver', () => {
     const semverWrapper = new Semver();
-    // semver.stub();
 
     const methodSpecs = [
         {
@@ -174,10 +173,7 @@ describe('SMV class should integrate with semver', () => {
                 loose: false,
                 major: 1,
                 minor: 2,
-                options: {
-                    includePrerelease: false,
-                    loose: false
-                },
+                options: {},
                 patch: 3,
                 prerelease: [],
                 raw: '1.2.3',
@@ -191,7 +187,7 @@ describe('SMV class should integrate with semver', () => {
         }
     ];
 
-    describe('should pass calls to the semver', () => {
+    describe('should return correct results for semver methods', () => {
         methodSpecs.forEach((methodSpec) => {
             it(`for ${methodSpec.name}`, () => {
                 const result = semverWrapper[methodSpec.name](...methodSpec.args);
