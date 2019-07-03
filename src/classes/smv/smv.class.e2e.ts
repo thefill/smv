@@ -173,10 +173,7 @@ describe('SMV class should integrate with semver', () => {
                 loose: false,
                 major: 1,
                 minor: 2,
-                options: {
-                    includePrerelease: false,
-                    loose: false
-                },
+                options: {},
                 patch: 3,
                 prerelease: [],
                 raw: '1.2.3',
