@@ -1,5 +1,5 @@
 [//]: # (Readme partial used by an default readme page)
 
-# Jetli
+# SMV
 
 Simple, lightweight dependency injector - supports factories, classes and primitives.

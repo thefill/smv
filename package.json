@@ -1,7 +1,7 @@
 {
     "name": "smv",
     "version": "0.0.1",
-    "description": "Semantic visioning & diff module",
+    "description": "Typed semantic versioner & semantic diff tool",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
@@ -48,6 +48,7 @@
         }
     },
     "dependencies": {
+        "semver": "6.1.1"
     },
     "devDependencies": {
         "@types/jest": "24.0.13",
