@@ -35,7 +35,7 @@ or
 SMV is a typed replacement for semver package as it proxies all semver-like methods to the semver.
 Full list of supported methods can be found [on the semver github page](https://www.npmjs.com/package/semver).
 
-<pre class="runkit-source">const smv = require('smv@0.0.5').SMV;
+<pre class="runkit-source">const SMV = require('smv@0.0.5').SMV;
 const smv = new SMV();
 
 const major = smv.major('1.2.3');
