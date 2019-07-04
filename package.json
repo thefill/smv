@@ -1,6 +1,6 @@
 {
     "name": "smv",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Typed semantic versioner & semantic diff tool",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
@@ -76,5 +76,12 @@
         "type": "git",
         "url": "git@github.com:thefill/smv.git"
     },
-    "license": "MIT"
+    "license": "MIT",
+    "keywords": [
+        "semver",
+        "semver-parser",
+        "semver-range",
+        "semver-release",
+        "dependency-parser"
+    ]
 }
