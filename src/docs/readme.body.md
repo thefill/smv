@@ -35,7 +35,7 @@ or
 SMV is a typed replacement for semver package as it proxies all semver-like methods to the semver.
 Full list of supported methods can be found [on the semver github page](https://www.npmjs.com/package/semver).
 
-<pre class="runkit-source">const SMV = require('smv@0.0.7').SMV;
+<pre class="runkit-source">const SMV = require('smv@1.0.0').SMV;
 const smv = new SMV();
 
 const major = smv.major('1.2.3');
@@ -56,7 +56,7 @@ With SMV you can resolve dependencies from multiple sources.
 
 Imagine how you would programmatically merge devDependencies from few package.json files?
 
-<pre class="runkit-source">const SMV = require('smv@0.0.7').SMV;
+<pre class="runkit-source">const SMV = require('smv@1.0.0').SMV;
 const smv = new SMV();
 
 const sourceA = {
@@ -80,7 +80,7 @@ Un-conflicting dependencies are easy - you can deal with them using basic JS tec
 
 How about conflicting dependencies?
 
-<pre class="runkit-source">const SMV = require('smv@0.0.7').SMV;
+<pre class="runkit-source">const SMV = require('smv@1.0.0').SMV;
 const smv = new SMV();
 
 const sourceA = {
@@ -107,7 +107,7 @@ console.log('Resolved digest', digest.resolved);</pre>
 There are situations when you don't want to waste time resolving conflicts. 
 SMV allows you to enforce recommended versions (from resolved digest) as a final result.
 
-<pre class="runkit-source">const SMV = require('smv@0.0.7').SMV;
+<pre class="runkit-source">const SMV = require('smv@1.0.0').SMV;
 const smv = new SMV();
 
 const sourceA = {

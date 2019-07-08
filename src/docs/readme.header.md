@@ -2,4 +2,4 @@
 
 # SMV
 
-Simple, lightweight dependency injector - supports factories, classes and primitives.
+Typed semantic versioner & diff module
