@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>VersionType | smv</title>
+	<title>IMergeDigest | smv</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,13 +56,13 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="../modules/_enums_version_type_version_type_enum_.html">&quot;enums/version-type/version-type.enum&quot;</a>
+					<a href="../modules/_interface_digest_digest_interface_.html">&quot;interface/digest/digest.interface&quot;</a>
 				</li>
 				<li>
-					<a href="_enums_version_type_version_type_enum_.versiontype.html">VersionType</a>
+					<a href="_interface_digest_digest_interface_.imergedigest.html">IMergeDigest</a>
 				</li>
 			</ul>
-			<h1>Enumeration VersionType</h1>
+			<h1>Interface IMergeDigest</h1>
 		</div>
 	</div>
 </header>
@@ -72,46 +72,26 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Description of version types</p>
+						<p>Output list of version per package</p>
 					</div>
 				</div>
 			</section>
-			<section class="tsd-panel-group tsd-index-group">
-				<h2>Index</h2>
-				<section class="tsd-panel tsd-index-panel">
-					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
-							<h3>Enumeration members</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="_enums_version_type_version_type_enum_.versiontype.html#range" class="tsd-kind-icon">RANGE</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="_enums_version_type_version_type_enum_.versiontype.html#version" class="tsd-kind-icon">VERSION</a></li>
-							</ul>
-						</section>
-					</div>
-				</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">IMergeDigest</span>
+					</li>
+				</ul>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Enumeration members</h2>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="range" class="tsd-anchor"></a>
-					<h3>RANGE</h3>
-					<div class="tsd-signature tsd-kind-icon">RANGE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;&quot;range&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/thefill/smv/blob/d2c7bf3/src/enums/version-type/version-type.enum.ts#L6">enums/version-type/version-type.enum.ts:6</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="version" class="tsd-anchor"></a>
-					<h3>VERSION</h3>
-					<div class="tsd-signature tsd-kind-icon">VERSION<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;&quot;version&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/thefill/smv/blob/d2c7bf3/src/enums/version-type/version-type.enum.ts#L5">enums/version-type/version-type.enum.ts:5</a></li>
-						</ul>
-					</aside>
-				</section>
+			<section class="tsd-panel tsd-kind-interface tsd-parent-kind-external-module">
+				<h3 class="tsd-before-signature">Indexable</h3>
+				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>packageName: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="../modules/_interface_version_version_interface_.html#iversion" class="tsd-signature-type">IVersion</a></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Standard object entry where key is a package name and value is a package version</p>
+					</div>
+				</div>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -135,10 +115,10 @@
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/_enums_conflict_type_conflict_type_enum_.html">"enums/conflict-<wbr>type/conflict-<wbr>type.enum"</a>
 					</li>
-					<li class="current tsd-kind-external-module">
+					<li class=" tsd-kind-external-module">
 						<a href="../modules/_enums_version_type_version_type_enum_.html">"enums/version-<wbr>type/version-<wbr>type.enum"</a>
 					</li>
-					<li class=" tsd-kind-external-module">
+					<li class="current tsd-kind-external-module">
 						<a href="../modules/_interface_digest_digest_interface_.html">"interface/digest/digest.interface"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -163,21 +143,37 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_interface_digest_digest_interface_.idependencyconflictdefinition.html" class="tsd-kind-icon">IDependency<wbr>Conflict<wbr>Definition</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_interface_digest_digest_interface_.idependencyconflictdigest.html" class="tsd-kind-icon">IDependency<wbr>Conflict<wbr>Digest</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_interface_digest_digest_interface_.idependencydigest.html" class="tsd-kind-icon">IDependency<wbr>Digest</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_interface_digest_digest_interface_.idependencyresolutiondigest.html" class="tsd-kind-icon">IDependency<wbr>Resolution<wbr>Digest</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_interface_digest_digest_interface_.idependencystatsdigest.html" class="tsd-kind-icon">IDependency<wbr>Stats<wbr>Digest</a>
+					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-enum tsd-parent-kind-external-module">
-						<a href="_enums_version_type_version_type_enum_.versiontype.html" class="tsd-kind-icon">Version<wbr>Type</a>
-						<ul>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="_enums_version_type_version_type_enum_.versiontype.html#range" class="tsd-kind-icon">RANGE</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="_enums_version_type_version_type_enum_.versiontype.html#version" class="tsd-kind-icon">VERSION</a>
-							</li>
-						</ul>
+					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_interface_digest_digest_interface_.imergedigest.html" class="tsd-kind-icon">IMerge<wbr>Digest</a>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_interface_digest_digest_interface_.isourcedependencydigest.html" class="tsd-kind-icon">ISource<wbr>Dependency<wbr>Digest</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_interface_digest_digest_interface_.isourcedigest.html" class="tsd-kind-icon">ISource<wbr>Digest</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_interface_digest_digest_interface_.iversiondefinition.html" class="tsd-kind-icon">IVersion<wbr>Definition</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
