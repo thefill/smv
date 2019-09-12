@@ -61,7 +61,7 @@
         "npm-watch": "0.6.0",
         "rimraf": "2.6.3",
         "showdown": "1.9.0",
-        "ts-jest": "24.0.2",
+        "ts-jest": "24.1.0",
         "tslint": "5.18.0",
         "typedoc": "0.14.2",
         "typescript": "3.5.2",
