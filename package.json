@@ -51,7 +51,7 @@
         "semver": "6.2.0"
     },
     "devDependencies": {
-        "@types/jest": "24.0.15",
+        "@types/jest": "24.0.22",
         "codacy-coverage": "3.4.0",
         "concat": "1.0.3",
         "gh-pages": "2.0.1",
