@@ -48,7 +48,7 @@
         }
     },
     "dependencies": {
-        "semver": "6.2.0"
+        "semver": "7.1.2"
     },
     "devDependencies": {
         "@types/jest": "24.0.15",
